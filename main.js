@@ -87,6 +87,7 @@ const updateMenu = () => {
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuOpenGithub);
   menu.append(new MenuItem({ type: 'separator' }));
+  menu.append(new MenuItem({ role: 'quit', label: 'Quit Charger Infomation' }));
 
   appIcon.setContextMenu(menu);
 };
