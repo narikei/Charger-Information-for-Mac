@@ -11,6 +11,7 @@ let menuWatts;
 let menuVoltage;
 let menuCurrent;
 let menuShowWatts;
+let chargerInfo;
 
 
 const initMenu = () => {
@@ -57,19 +58,44 @@ const getChargerInfo = () => {
   return info;
 };
 
+const isCharging = () => {
+  return !!(chargerInfo.Watts && chargerInfo.Voltage && chargerInfo.Current);
+}
 
-const update = () => {
-  const chargerInfo = getChargerInfo();
 
+const updateAppIconTitle = () => {
   let title = '';
-  if (menuShowWatts.checked) {
+
+  if (menuShowWatts.checked && isCharging()) {
     title = `${chargerInfo.Watts}W`;
   }
+
   appIcon.setTitle(title);
+};
+
+const updateMenuInfo = () => {
+  if (!isCharging()) {
+    menuWatts.visible = false;
+    menuVoltage.visible = false;
+    menuCurrent.visible = false;
+    return;
+  }
+
+  menuWatts.visible = true;
+  menuVoltage.visible = true;
+  menuCurrent.visible = true;
 
   menuWatts.label = `Watts: ${chargerInfo.Watts}W`;
   menuVoltage.label = `Voltage: ${chargerInfo.Voltage / 1000}V`;
   menuCurrent.label = `Current: ${chargerInfo.Current / 1000}A`;
+};
+
+
+const update = () => {
+  chargerInfo = getChargerInfo();
+
+  updateAppIconTitle();
+  updateMenuInfo();
 
   updateMenu();
 };
