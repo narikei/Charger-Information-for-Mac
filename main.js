@@ -9,7 +9,7 @@ const ICON_MISSED_PATH = `${__dirname}/images/icon_missed.png`;
 const ICON_PRESSED_PATH = `${__dirname}/images/icon_pressed.png`;
 
 const MENU_NOTIFICATION_KEY = `MENU_NOTIFICATION_KEY`;
-const MENU_SHOW_WATTS_KEY = `MENU_SHOW_WATTS_KEY`;
+const MENU_SHOW_POWER_KEY = `MENU_SHOW_POWER_KEY`;
 
 
 const store = new Store({
@@ -18,7 +18,7 @@ const store = new Store({
       type: 'boolean',
       default: false,
     },
-    MENU_SHOW_WATTS_KEY: {
+    MENU_SHOW_POWER_KEY: {
       type: 'boolean',
       default: true,
     },
@@ -28,11 +28,11 @@ const store = new Store({
 
 let appIcon;
 let menu
-let menuWatts;
+let menuPower;
 let menuVoltage;
 let menuCurrent;
 let menuChangeNotification;
-let menuShowWatts;
+let menuShowPower;
 let menuOpenGithub;
 let chargerInfo;
 
@@ -41,7 +41,7 @@ const initMenu = () => {
   appIcon = new Tray(ICON_CHARGING_PATH);
   appIcon.setPressedImage(ICON_PRESSED_PATH);
 
-  menuWatts = new MenuItem({
+  menuPower = new MenuItem({
     enabled: false,
   });
   menuVoltage = new MenuItem({
@@ -58,13 +58,13 @@ const initMenu = () => {
       store.set(MENU_NOTIFICATION_KEY, menuChangeNotification.checked);
     },
   });
-  menuShowWatts = new MenuItem({
-    label: 'Show Watts',
+  menuShowPower = new MenuItem({
+    label: 'Show Power',
     type: 'checkbox',
-    checked: store.get(MENU_SHOW_WATTS_KEY),
+    checked: store.get(MENU_SHOW_POWER_KEY),
     click: () => {
       update();
-      store.set(MENU_SHOW_WATTS_KEY, menuShowWatts.checked);
+      store.set(MENU_SHOW_POWER_KEY, menuShowPower.checked);
     },
   });
   menuOpenGithub = new MenuItem({
@@ -78,12 +78,12 @@ const initMenu = () => {
 const updateMenu = () => {
   menu = new Menu();
 
-  menu.append(menuWatts);
+  menu.append(menuPower);
   menu.append(menuVoltage);
   menu.append(menuCurrent);
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuChangeNotification);
-  menu.append(menuShowWatts);
+  menu.append(menuShowPower);
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuOpenGithub);
   menu.append(new MenuItem({ type: 'separator' }));
@@ -117,7 +117,7 @@ const updateAppIcon = () => {
 const updateAppIconTitle = () => {
   let title = '';
 
-  if (menuShowWatts.checked && isCharging()) {
+  if (menuShowPower.checked && isCharging()) {
     title = `${chargerInfo.Watts}W`;
   }
 
@@ -126,17 +126,17 @@ const updateAppIconTitle = () => {
 
 const updateMenuInfo = () => {
   if (!isCharging()) {
-    menuWatts.visible = false;
+    menuPower.visible = false;
     menuVoltage.visible = false;
     menuCurrent.visible = false;
     return;
   }
 
-  menuWatts.visible = true;
+  menuPower.visible = true;
   menuVoltage.visible = true;
   menuCurrent.visible = true;
 
-  menuWatts.label = `Watts: ${chargerInfo.Watts}W`;
+  menuPower.label = `Power: ${chargerInfo.Watts}W`;
   menuVoltage.label = `Voltage: ${chargerInfo.Voltage / 1000}V`;
   menuCurrent.label = `Current: ${chargerInfo.Current / 1000}A`;
 };
@@ -148,7 +148,7 @@ const notification = (oldChargerInfo) => {
 
   if (
     !oldChargerInfo
-    || oldChargerInfo.Watts == chargerInfo.Watts
+    || oldchargerInfo.Watts == chargerInfo.Watts
     && oldChargerInfo.Voltage == chargerInfo.Voltage
     && oldChargerInfo.Current == chargerInfo.Current
   ) {
@@ -162,7 +162,7 @@ const notification = (oldChargerInfo) => {
 
   if (isCharging()) {
     params.title = 'Charging';
-    params.body = `Watts: ${chargerInfo.Watts}W\nVoltage: ${chargerInfo.Voltage/1000}V / Current: ${chargerInfo.Current/1000}A`;
+    params.body = `Power: ${chargerInfo.Watts}W\nVoltage: ${chargerInfo.Voltage/1000}V / Current: ${chargerInfo.Current/1000}A`;
   }
 
   const notification = new Notification(params);
