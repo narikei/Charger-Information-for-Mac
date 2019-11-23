@@ -141,14 +141,14 @@ const updateMenuInfo = () => {
   menuCurrent.label = `Current: ${chargerInfo.Current / 1000}A`;
 };
 
-const notification = (oldChargerInfo) => {
+const notify = (oldChargerInfo) => {
   if (!menuChangeNotification.checked) {
     return;
   }
 
   if (
-    !oldChargerInfo
-    || oldchargerInfo.Watts == chargerInfo.Watts
+    oldChargerInfo
+    && oldChargerInfo.Watts == chargerInfo.Watts
     && oldChargerInfo.Voltage == chargerInfo.Voltage
     && oldChargerInfo.Current == chargerInfo.Current
   ) {
@@ -176,7 +176,7 @@ const update = () => {
   updateAppIcon();
   updateAppIconTitle();
   updateMenuInfo();
-  notification(oldChargerInfo);
+  notify(oldChargerInfo);
 
   updateMenu();
 };
