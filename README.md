@@ -1,1 +1,2 @@
-# Charger-Infomation-for-Mac
+# Charger Information for Mac
+

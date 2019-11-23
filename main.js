@@ -2,7 +2,7 @@ const { app, Tray, Menu, MenuItem, Notification, shell } = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
 
-const GITHUB_URL = 'https://github.com/narikei/Charger-Infomation-for-Mac';
+const GITHUB_URL = 'https://github.com/narikei/Charger-Information-for-Mac';
 
 const ICON_CHARGING_PATH = `${__dirname}/images/icon_charging.png`;
 const ICON_MISSED_PATH = `${__dirname}/images/icon_missed.png`;
@@ -87,7 +87,7 @@ const updateMenu = () => {
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuOpenGithub);
   menu.append(new MenuItem({ type: 'separator' }));
-  menu.append(new MenuItem({ role: 'quit', label: 'Quit Charger Infomation' }));
+  menu.append(new MenuItem({ role: 'quit', label: 'Quit Charger Information' }));
 
   appIcon.setContextMenu(menu);
 };
