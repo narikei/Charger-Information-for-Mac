@@ -1,0 +1,8 @@
+{
+  "name": "charger-infomation-for-mac",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:narikei/Charger-Infomation-for-Mac.git",
+  "author": "なりたけいすけ <narikei1030@gmail.com>",
+  "license": "MIT"
+}
