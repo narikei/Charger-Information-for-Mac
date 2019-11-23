@@ -47,11 +47,9 @@ const getChargerInfo = () => {
 };
 
 
-app.on('ready', () => {
-  app.dock.hide();
-  initMenu();
-
+const update = () => {
   const chargerInfo = getChargerInfo();
+
   appIcon.setTitle(`${chargerInfo.Watts}W`);
 
   menuWatts.label = `Watts: ${chargerInfo.Watts}W`;
@@ -59,4 +57,13 @@ app.on('ready', () => {
   menuCurrent.label = `Current: ${chargerInfo.Current / 1000}A`;
 
   updateMenu();
+};
+
+
+app.on('ready', () => {
+  app.dock.hide();
+  initMenu();
+
+  update();
+  setInterval(update, 5000);
 });
