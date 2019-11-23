@@ -1,4 +1,4 @@
-const { app, Tray, Menu, MenuItem } = require('electron');
+const { app, Tray, Menu, MenuItem, Notification } = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
 
@@ -6,11 +6,17 @@ const { execSync } = require('child_process');
 const ICON_CHARGING_PATH = `${__dirname}/images/icon_charging.png`;
 const ICON_MISSED_PATH = `${__dirname}/images/icon_missed.png`;
 const ICON_PRESSED_PATH = `${__dirname}/images/icon_pressed.png`;
+
+const MENU_NOTIFICATION_KEY = `MENU_NOTIFICATION_KEY`;
 const MENU_SHOW_WATTS_KEY = `MENU_SHOW_WATTS_KEY`;
 
 
 const store = new Store({
   schema: {
+    MENU_NOTIFICATION_KEY: {
+      type: 'boolean',
+      default: false,
+    },
     MENU_SHOW_WATTS_KEY: {
       type: 'boolean',
       default: true,
@@ -24,6 +30,7 @@ let menu
 let menuWatts;
 let menuVoltage;
 let menuCurrent;
+let menuChangeNotification;
 let menuShowWatts;
 let chargerInfo;
 
@@ -40,6 +47,14 @@ const initMenu = () => {
   });
   menuCurrent = new MenuItem({
     enabled: false,
+  });
+  menuChangeNotification = new MenuItem({
+    label: 'Change Notification',
+    type: 'checkbox',
+    checked: store.get(MENU_NOTIFICATION_KEY),
+    click: () => {
+      store.set(MENU_NOTIFICATION_KEY, menuChangeNotification.checked);
+    },
   });
   menuShowWatts = new MenuItem({
     label: 'Show Watts',
@@ -59,6 +74,7 @@ const updateMenu = () => {
   menu.append(menuVoltage);
   menu.append(menuCurrent);
   menu.append(new MenuItem({ type: 'separator' }));
+  menu.append(menuChangeNotification);
   menu.append(menuShowWatts);
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(new MenuItem({ role: 'quit' }));
@@ -115,13 +131,42 @@ const updateMenuInfo = () => {
   menuCurrent.label = `Current: ${chargerInfo.Current / 1000}A`;
 };
 
+const notification = (oldChargerInfo) => {
+  if (!menuChangeNotification.checked) {
+    return;
+  }
+
+  if (
+    !oldChargerInfo
+    || oldChargerInfo.Watts == chargerInfo.Watts
+    && oldChargerInfo.Voltage == chargerInfo.Voltage
+    && oldChargerInfo.Current == chargerInfo.Current
+  ) {
+    return;
+  }
+
+  const params = {
+    title: 'Missed charger.',
+    silent: true,
+  };
+
+  if (isCharging()) {
+    params.title = 'Charging';
+    params.body = `Watts: ${chargerInfo.Watts}W\nVoltage: ${chargerInfo.Voltage/1000}V / Current: ${chargerInfo.Current/1000}A`;
+  }
+
+  const notification = new Notification(params);
+  notification.show();
+};
 
 const update = () => {
+  const oldChargerInfo = chargerInfo;
   chargerInfo = getChargerInfo();
 
   updateAppIcon();
   updateAppIconTitle();
   updateMenuInfo();
+  notification(oldChargerInfo);
 
   updateMenu();
 };
