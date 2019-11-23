@@ -1,8 +1,14 @@
 {
   "name": "charger-infomation-for-mac",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
   "repository": "git@github.com:narikei/Charger-Infomation-for-Mac.git",
   "author": "なりたけいすけ <narikei1030@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^7.1.2"
+  }
 }
