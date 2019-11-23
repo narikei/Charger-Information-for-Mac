@@ -10,6 +10,7 @@ let menu
 let menuWatts;
 let menuVoltage;
 let menuCurrent;
+let menuShowWatts;
 
 
 const initMenu = () => {
@@ -24,6 +25,14 @@ const initMenu = () => {
   menuCurrent = new MenuItem({
     enabled: false,
   });
+  menuShowWatts = new MenuItem({
+    label: 'Show Watts',
+    type: 'checkbox',
+    checked: true,
+    click: () => {
+      update();
+    },
+  });
 };
 
 const updateMenu = () => {
@@ -32,6 +41,8 @@ const updateMenu = () => {
   menu.append(menuWatts);
   menu.append(menuVoltage);
   menu.append(menuCurrent);
+  menu.append(new MenuItem({ type: 'separator' }));
+  menu.append(menuShowWatts);
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(new MenuItem({ role: 'quit' }));
 
@@ -50,7 +61,11 @@ const getChargerInfo = () => {
 const update = () => {
   const chargerInfo = getChargerInfo();
 
-  appIcon.setTitle(`${chargerInfo.Watts}W`);
+  let title = '';
+  if (menuShowWatts.checked) {
+    title = `${chargerInfo.Watts}W`;
+  }
+  appIcon.setTitle(title);
 
   menuWatts.label = `Watts: ${chargerInfo.Watts}W`;
   menuVoltage.label = `Voltage: ${chargerInfo.Voltage / 1000}V`;
