@@ -1,6 +1,16 @@
-const { app } = require('electron');
+const { app, Tray } = require('electron');
 const { execSync } = require('child_process');
 
+
+const ICON_PATH = `${__dirname}/images/icon.png`;
+
+
+let appIcon;
+
+
+const initMenu = () => {
+  appIcon = new Tray(ICON_PATH);
+};
 
 
 const getChargerInfo = () => {
@@ -12,5 +22,8 @@ const getChargerInfo = () => {
 
 
 app.on('ready', () => {
-  console.log('hello!');
+  initMenu();
+
+  const chargerInfo = getChargerInfo();
+  appIcon.setTitle(`${chargerInfo.Watts}W`);
 });
