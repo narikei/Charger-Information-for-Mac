@@ -1,8 +1,20 @@
 const { app, Tray, Menu, MenuItem } = require('electron');
+const Store = require('electron-store');
 const { execSync } = require('child_process');
 
 
 const ICON_PATH = `${__dirname}/images/icon.png`;
+const MENU_SHOW_WATTS_KEY = `MENU_SHOW_WATTS_KEY`;
+
+
+const store = new Store({
+  schema: {
+    MENU_SHOW_WATTS_KEY: {
+      type: 'boolean',
+      default: true,
+    },
+  },
+});
 
 
 let appIcon;
@@ -29,9 +41,10 @@ const initMenu = () => {
   menuShowWatts = new MenuItem({
     label: 'Show Watts',
     type: 'checkbox',
-    checked: true,
+    checked: store.get(MENU_SHOW_WATTS_KEY),
     click: () => {
       update();
+      store.set(MENU_SHOW_WATTS_KEY, menuShowWatts.checked);
     },
   });
 };

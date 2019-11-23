@@ -9,6 +9,7 @@
   "author": "なりたけいすけ <narikei1030@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "electron": "^7.1.2"
+    "electron": "^7.1.2",
+    "electron-store": "^5.1.0"
   }
 }
