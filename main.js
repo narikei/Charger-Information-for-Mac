@@ -22,6 +22,7 @@ const getChargerInfo = () => {
 
 
 app.on('ready', () => {
+  app.dock.hide();
   initMenu();
 
   const chargerInfo = getChargerInfo();
