@@ -94,9 +94,33 @@ const updateMenu = () => {
 
 
 const getChargerInfo = () => {
+  let v;
+  const info = {};
+
   const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
-  const res = stdout.toString().match(/\{.+\}/)[0];
-  const info = JSON.parse(res.replace(/=/g, ':'));
+
+  v = stdout.toString().match(/\{.+\}/);
+  if (!v) {
+    return info;
+  }
+
+  const res = v[0];
+
+  v = res.match(/\"Watts\"=(\d+)/);
+  if (v) {
+    info.Watts = v[1];
+  }
+
+  v = res.match(/\"Voltage\"=(\d+)/);
+  if (v) {
+    info.Voltage = v[1];
+  }
+
+  v = res.match(/\"Current\"=(\d+)/);
+  if (v) {
+    info.Current = v[1];
+  }
+
   return info;
 };
 
