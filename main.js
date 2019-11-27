@@ -28,6 +28,7 @@ const store = new Store({
 
 let appIcon;
 let menu
+let menuStatus;
 let menuPower;
 let menuVoltage;
 let menuCurrent;
@@ -41,6 +42,9 @@ const initMenu = () => {
   appIcon = new Tray(ICON_CHARGING_PATH);
   appIcon.setPressedImage(ICON_PRESSED_PATH);
 
+  menuStatus = new MenuItem({
+    enabled: false,
+  });
   menuPower = new MenuItem({
     enabled: false,
   });
@@ -78,6 +82,7 @@ const initMenu = () => {
 const updateMenu = () => {
   menu = new Menu();
 
+  menu.append(menuStatus);
   menu.append(menuPower);
   menu.append(menuVoltage);
   menu.append(menuCurrent);
@@ -150,6 +155,7 @@ const updateAppIconTitle = () => {
 
 const updateMenuInfo = () => {
   if (!isCharging()) {
+    menuStatus.label = 'Missed charger.';
     menuPower.visible = false;
     menuVoltage.visible = false;
     menuCurrent.visible = false;
@@ -160,9 +166,10 @@ const updateMenuInfo = () => {
   menuVoltage.visible = true;
   menuCurrent.visible = true;
 
-  menuPower.label = `Power: ${chargerInfo.Watts}W`;
-  menuVoltage.label = `Voltage: ${chargerInfo.Voltage / 1000}V`;
-  menuCurrent.label = `Current: ${chargerInfo.Current / 1000}A`;
+  menuStatus.label = '⚡Charging⚡';
+  menuPower.label = `\tPower: ${chargerInfo.Watts}W`;
+  menuVoltage.label = `\tVoltage: ${chargerInfo.Voltage / 1000}V`;
+  menuCurrent.label = `\tCurrent: ${chargerInfo.Current / 1000}A`;
 };
 
 const notify = (oldChargerInfo) => {
@@ -185,7 +192,7 @@ const notify = (oldChargerInfo) => {
   };
 
   if (isCharging()) {
-    params.title = 'Charging';
+    params.title = '⚡Charging';
     params.body = `Power: ${chargerInfo.Watts}W\nVoltage: ${chargerInfo.Voltage/1000}V / Current: ${chargerInfo.Current/1000}A`;
   }
 
