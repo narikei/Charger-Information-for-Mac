@@ -1,6 +1,7 @@
 const { app, Tray, Menu, MenuItem, Notification, shell } = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
+const package = require('./package.json');
 
 const GITHUB_URL = 'https://github.com/narikei/Charger-Information-for-Mac';
 
@@ -92,7 +93,7 @@ const updateMenu = () => {
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuOpenGithub);
   menu.append(new MenuItem({ type: 'separator' }));
-  menu.append(new MenuItem({ role: 'quit', label: 'Quit Charger Information' }));
+  menu.append(new MenuItem({ role: 'quit', label: 'Quit Charger Information v' + package.version }));
 
   appIcon.setContextMenu(menu);
 };
@@ -166,7 +167,7 @@ const updateMenuInfo = () => {
   menuVoltage.visible = true;
   menuCurrent.visible = true;
 
-  menuStatus.label = '⚡Charging⚡';
+  menuStatus.label = '⚡Charging';
   menuPower.label = `\tPower: ${chargerInfo.Watts}W`;
   menuVoltage.label = `\tVoltage: ${chargerInfo.Voltage / 1000}V`;
   menuCurrent.label = `\tCurrent: ${chargerInfo.Current / 1000}A`;
