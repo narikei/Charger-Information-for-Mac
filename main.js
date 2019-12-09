@@ -1,4 +1,4 @@
-const { app, Tray, Menu, MenuItem, Notification, shell } = require('electron');
+const { app, Tray, Menu, MenuItem, Notification, shell, dialog } = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
 const package = require('./package.json');
@@ -11,7 +11,6 @@ const ICON_PRESSED_PATH = `${__dirname}/images/icon_pressed.png`;
 
 const MENU_NOTIFICATION_KEY = `MENU_NOTIFICATION_KEY`;
 const MENU_SHOW_POWER_KEY = `MENU_SHOW_POWER_KEY`;
-
 
 const store = new Store({
   schema: {
@@ -98,33 +97,79 @@ const updateMenu = () => {
   appIcon.setContextMenu(menu);
 };
 
-
+let isFallback = false;
 const getChargerInfo = () => {
   let v;
   const info = {};
 
-  const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
-
-  v = stdout.toString().match(/\{.+\}/);
-  if (!v) {
-    return info;
+  if(! isFallback){
+    try{
+      const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
+  
+      v = stdout.toString().match(/\{.+\}/);
+      if (!v) {
+        return info;
+      }
+  
+      const res = v[0];
+  
+      v = res.match(/\"Watts\"=(\d+)/);
+      if (v) {
+        info.Watts = v[1];
+      }
+  
+      v = res.match(/\"Voltage\"=(\d+)/);
+      if (v) {
+        info.Voltage = v[1];
+      }
+  
+      v = res.match(/\"Current\"=(\d+)/);
+      if (v) {
+        info.Current = v[1];
+      }
+    }catch(e){
+      console.log(e.toString());
+      isFallback = true;
+    }
   }
-
-  const res = v[0];
-
-  v = res.match(/\"Watts\"=(\d+)/);
-  if (v) {
-    info.Watts = v[1];
-  }
-
-  v = res.match(/\"Voltage\"=(\d+)/);
-  if (v) {
-    info.Voltage = v[1];
-  }
-
-  v = res.match(/\"Current\"=(\d+)/);
-  if (v) {
-    info.Current = v[1];
+  if(isFallback){
+    // Command Fallback
+    try{
+      const stdout = execSync('system_profiler SPPowerDataType | grep Wattage');
+      const res = stdout.toString()
+    
+      v = res.match(/:\s*(\d+)/);
+      if (v) {
+        info.Watts = v[1];
+      }
+    }catch(e){
+      app.dock.show();
+      dialog.showErrorBox("Error : " + app.name, e.toString());
+      app.quit();
+    }
+    try{
+      const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"LegacyBatteryInfo\\\"');
+      v = stdout.toString().match(/\{.+\}/);
+      if (!v) {
+        return info;
+      }
+  
+      const res = v[0];
+  
+      v = res.match(/\"Voltage\"=(\d+)/);
+      if (v) {
+        info.Voltage = v[1];
+      }
+  
+      v = res.match(/\"Current\"=(\d+)/);
+      if (v) {
+        info.Current = v[1];
+      }
+    }catch(e){
+      app.dock.show();
+      dialog.showErrorBox("Error : " + app.name, e.toString());
+      app.quit();
+    }
   }
 
   return info;
