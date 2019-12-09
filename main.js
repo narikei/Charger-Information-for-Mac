@@ -105,24 +105,24 @@ const getChargerInfo = () => {
   if(! isFallback){
     try{
       const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
-  
+
       v = stdout.toString().match(/\{.+\}/);
       if (!v) {
         return info;
       }
-  
+
       const res = v[0];
-  
+
       v = res.match(/\"Watts\"=(\d+)/);
       if (v) {
         info.Watts = v[1];
       }
-  
+
       v = res.match(/\"Voltage\"=(\d+)/);
       if (v) {
         info.Voltage = v[1];
       }
-  
+
       v = res.match(/\"Current\"=(\d+)/);
       if (v) {
         info.Current = v[1];
@@ -137,15 +137,14 @@ const getChargerInfo = () => {
     try{
       const stdout = execSync('system_profiler SPPowerDataType | grep Wattage');
       const res = stdout.toString()
-    
+
       v = res.match(/:\s*(\d+)/);
       if (v) {
         info.Watts = v[1];
       }
     }catch(e){
-      app.dock.show();
-      dialog.showErrorBox("Error : " + app.name, e.toString());
-      app.quit();
+        // not charging
+        info.Watts = nullt;
     }
     try{
       const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"LegacyBatteryInfo\\\"');
@@ -153,14 +152,14 @@ const getChargerInfo = () => {
       if (!v) {
         return info;
       }
-  
+
       const res = v[0];
-  
+
       v = res.match(/\"Voltage\"=(\d+)/);
       if (v) {
         info.Voltage = v[1];
       }
-  
+
       v = res.match(/\"Current\"=(\d+)/);
       if (v) {
         info.Current = v[1];
