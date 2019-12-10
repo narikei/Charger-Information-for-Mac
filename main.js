@@ -1,13 +1,13 @@
-const { app, Tray, Menu, MenuItem, Notification, shell, dialog } = require('electron');
+const { app, Tray, Menu, MenuItem, Notification, shell, dialog, nativeTheme } = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
 const package = require('./package.json');
 
 const GITHUB_URL = 'https://github.com/narikei/Charger-Information-for-Mac';
 
-const ICON_CHARGING_PATH = `${__dirname}/images/icon_charging.png`;
-const ICON_MISSED_PATH = `${__dirname}/images/icon_missed.png`;
-const ICON_PRESSED_PATH = `${__dirname}/images/icon_pressed.png`;
+const ICON_BLACK_PATH = `${__dirname}/images/icon_black.png`;
+const ICON_GRAY_PATH = `${__dirname}/images/icon_gray.png`;
+const ICON_WHITE_PATH = `${__dirname}/images/icon_white.png`;
 
 const MENU_NOTIFICATION_KEY = `MENU_NOTIFICATION_KEY`;
 const MENU_SHOW_POWER_KEY = `MENU_SHOW_POWER_KEY`;
@@ -39,8 +39,7 @@ let chargerInfo;
 
 
 const initMenu = () => {
-  appIcon = new Tray(ICON_CHARGING_PATH);
-  appIcon.setPressedImage(ICON_PRESSED_PATH);
+  appIcon = new Tray(ICON_BLACK_PATH);
 
   menuStatus = new MenuItem({
     enabled: false,
@@ -174,12 +173,20 @@ const isCharging = () => {
 
 
 const updateAppIcon = () => {
+  let charging_path = ICON_BLACK_PATH;
+
+  if (nativeTheme.shouldUseDarkColors) {
+    charging_path = ICON_WHITE_PATH;
+  }
+
+  appIcon.setPressedImage(ICON_WHITE_PATH);
+
   if (!isCharging()) {
-    appIcon.setImage(ICON_MISSED_PATH);
+    appIcon.setImage(ICON_GRAY_PATH);
     return;
   }
 
-  appIcon.setImage(ICON_CHARGING_PATH);
+  appIcon.setImage(charging_path);
 };
 
 const updateAppIconTitle = () => {
