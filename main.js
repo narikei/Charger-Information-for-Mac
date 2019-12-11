@@ -1,4 +1,4 @@
-const { app, Tray, Menu, MenuItem, Notification, shell, nativeTheme } = require('electron');
+const { app, Tray, Menu, MenuItem, Notification, shell, dialog, nativeTheme } = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
 const package = require('./package.json');
@@ -11,7 +11,6 @@ const ICON_WHITE_PATH = `${__dirname}/images/icon_white.png`;
 
 const MENU_NOTIFICATION_KEY = `MENU_NOTIFICATION_KEY`;
 const MENU_SHOW_POWER_KEY = `MENU_SHOW_POWER_KEY`;
-
 
 const store = new Store({
   schema: {
@@ -97,33 +96,72 @@ const updateMenu = () => {
   appIcon.setContextMenu(menu);
 };
 
-
+let isFallback = false;
 const getChargerInfo = () => {
   let v;
   const info = {};
 
-  const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
+  if(! isFallback){
+    try{
+      const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
 
-  v = stdout.toString().match(/\{.+\}/);
-  if (!v) {
-    return info;
+      v = stdout.toString().match(/\{.+\}/);
+      if (!v) {
+        return info;
+      }
+
+      const res = v[0];
+
+      v = res.match(/\"Watts\"=(\d+)/);
+      if (v) {
+        info.Watts = v[1];
+      }
+
+      v = res.match(/\"Voltage\"=(\d+)/);
+      if (v) {
+        info.Voltage = v[1];
+      }
+
+      v = res.match(/\"Current\"=(\d+)/);
+      if (v) {
+        info.Current = v[1];
+      }
+    }catch(e){
+      console.log(e.toString());
+      isFallback = true;
+    }
   }
+  if(isFallback){
+    // Command Fallback
+    try{
+      const stdout = execSync('pmset -g ac');
+      v = stdout.toString();
+      if (!v) {
+        return info;
+      }
 
-  const res = v[0];
+      const res = v;
 
-  v = res.match(/\"Watts\"=(\d+)/);
-  if (v) {
-    info.Watts = v[1];
-  }
+      v = res.match(/Wattage = (\d+)/);
+      if (v) {
+        info.Watts = v[1];
+      }
 
-  v = res.match(/\"Voltage\"=(\d+)/);
-  if (v) {
-    info.Voltage = v[1];
-  }
+      v = res.match(/Voltage = (\d+)/);
+      if (v) {
+        info.Voltage = v[1];
+      }
 
-  v = res.match(/\"Current\"=(\d+)/);
-  if (v) {
-    info.Current = v[1];
+      v = res.match(/Current = (\d+)/);
+      if (v) {
+        info.Current = v[1];
+      }
+
+    }catch(e){
+      app.dock.show();
+      dialog.showErrorBox("Error : " + app.name, e.toString());
+      app.quit();
+    }
   }
 
   return info;
