@@ -254,9 +254,13 @@ const update = (forceUpdate = false) => {
   updateAppIcon();
   updateAppIconTitle();
   updateMenuInfo();
-  notify();
-
   updateMenu();
+
+  if (forceUpdate) {
+    return;
+  }
+
+  notify();
 };
 
 
