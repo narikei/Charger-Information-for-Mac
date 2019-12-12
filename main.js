@@ -218,17 +218,21 @@ const updateMenuInfo = () => {
   menuCurrent.label = `\tCurrent: ${chargerInfo.Current / 1000}A`;
 };
 
-const notify = (oldChargerInfo) => {
-  if (!menuChangeNotification.checked) {
-    return;
-  }
-
-  if (
+const isChanged = (oldChargerInfo) => {
+  if(
     oldChargerInfo
     && oldChargerInfo.Watts == chargerInfo.Watts
     && oldChargerInfo.Voltage == chargerInfo.Voltage
     && oldChargerInfo.Current == chargerInfo.Current
   ) {
+    return false;
+  }
+
+  return true;
+};
+
+const notify = () => {
+  if (!menuChangeNotification.checked) {
     return;
   }
 
@@ -252,8 +256,11 @@ const update = () => {
 
   updateAppIcon();
   updateAppIconTitle();
+  if (!isChanged(oldChargerInfo)) {
+    return;
+  }
   updateMenuInfo();
-  notify(oldChargerInfo);
+  notify();
 
   updateMenu();
 };
