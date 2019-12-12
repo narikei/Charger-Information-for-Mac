@@ -4,6 +4,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "test": "eslint main.js",
     "build": "electron-builder"
   },
   "repository": "git@github.com:narikei/Charger-Information-for-Mac.git",
@@ -14,7 +15,10 @@
   },
   "devDependencies": {
     "electron": "^7.1.2",
-    "electron-builder": "^21.2.0"
+    "electron-builder": "^21.2.0",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.19.1"
   },
   "build": {
     "appId": "com.ozonicsky.charger-information-for-mac",

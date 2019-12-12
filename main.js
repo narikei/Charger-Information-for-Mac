@@ -1,7 +1,9 @@
-const { app, Tray, Menu, MenuItem, Notification, shell, dialog, nativeTheme } = require('electron');
+const {
+  app, Tray, Menu, MenuItem, Notification, shell, dialog, nativeTheme,
+} = require('electron');
 const Store = require('electron-store');
 const { execSync } = require('child_process');
-const package = require('./package.json');
+const { version } = require('./package.json');
 
 const GITHUB_URL = 'https://github.com/narikei/Charger-Information-for-Mac';
 
@@ -9,8 +11,8 @@ const ICON_BLACK_PATH = `${__dirname}/images/icon_black.png`;
 const ICON_GRAY_PATH = `${__dirname}/images/icon_gray.png`;
 const ICON_WHITE_PATH = `${__dirname}/images/icon_white.png`;
 
-const MENU_NOTIFICATION_KEY = `MENU_NOTIFICATION_KEY`;
-const MENU_SHOW_POWER_KEY = `MENU_SHOW_POWER_KEY`;
+const MENU_NOTIFICATION_KEY = 'MENU_NOTIFICATION_KEY';
+const MENU_SHOW_POWER_KEY = 'MENU_SHOW_POWER_KEY';
 
 const store = new Store({
   schema: {
@@ -27,7 +29,7 @@ const store = new Store({
 
 
 let appIcon;
-let menu
+let menu;
 let menuStatus;
 let menuPower;
 let menuVoltage;
@@ -37,46 +39,6 @@ let menuShowPower;
 let menuOpenGithub;
 let chargerInfo;
 
-
-const initMenu = () => {
-  appIcon = new Tray(ICON_BLACK_PATH);
-
-  menuStatus = new MenuItem({
-    enabled: false,
-  });
-  menuPower = new MenuItem({
-    enabled: false,
-  });
-  menuVoltage = new MenuItem({
-    enabled: false,
-  });
-  menuCurrent = new MenuItem({
-    enabled: false,
-  });
-  menuChangeNotification = new MenuItem({
-    label: 'Change Notification',
-    type: 'checkbox',
-    checked: store.get(MENU_NOTIFICATION_KEY),
-    click: () => {
-      store.set(MENU_NOTIFICATION_KEY, menuChangeNotification.checked);
-    },
-  });
-  menuShowPower = new MenuItem({
-    label: 'Show Power',
-    type: 'checkbox',
-    checked: store.get(MENU_SHOW_POWER_KEY),
-    click: () => {
-      update(true);
-      store.set(MENU_SHOW_POWER_KEY, menuShowPower.checked);
-    },
-  });
-  menuOpenGithub = new MenuItem({
-    label: 'Open GitHub',
-    click: () => {
-      shell.openExternal(GITHUB_URL);
-    },
-  });
-};
 
 const updateMenu = () => {
   menu = new Menu();
@@ -91,7 +53,7 @@ const updateMenu = () => {
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuOpenGithub);
   menu.append(new MenuItem({ type: 'separator' }));
-  menu.append(new MenuItem({ role: 'quit', label: 'Quit Charger Information v' + package.version }));
+  menu.append(new MenuItem({ role: 'quit', label: `Quit Charger Information v${version}` }));
 
   appIcon.setContextMenu(menu);
 };
@@ -101,9 +63,9 @@ const getChargerInfo = () => {
   let v;
   const info = {};
 
-  if(! isFallback){
-    try{
-      const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\\"AdapterDetails\\\"');
+  if (!isFallback) {
+    try {
+      const stdout = execSync('ioreg -rn AppleSmartBattery | grep \\"AdapterDetails\\"');
 
       v = stdout.toString().match(/\{.+\}/);
       if (!v) {
@@ -111,29 +73,29 @@ const getChargerInfo = () => {
       }
 
       const res = v[0];
+      const index = 1;
 
-      v = res.match(/\"Watts\"=(\d+)/);
+      v = res.match(/"Watts"=(\d+)/);
       if (v) {
-        info.Watts = v[1];
+        info.Watts = v[index];
       }
 
-      v = res.match(/\"Voltage\"=(\d+)/);
+      v = res.match(/"Voltage"=(\d+)/);
       if (v) {
-        info.Voltage = v[1];
+        info.Voltage = v[index];
       }
 
-      v = res.match(/\"Current\"=(\d+)/);
+      v = res.match(/"Current"=(\d+)/);
       if (v) {
-        info.Current = v[1];
+        info.Current = v[index];
       }
-    }catch(e){
-      console.log(e.toString());
+    } catch (e) {
       isFallback = true;
     }
   }
-  if(isFallback){
+  if (isFallback) {
     // Command Fallback
-    try{
+    try {
       const stdout = execSync('pmset -g ac');
       v = stdout.toString();
       if (!v) {
@@ -141,25 +103,25 @@ const getChargerInfo = () => {
       }
 
       const res = v;
+      const index = 1;
 
       v = res.match(/Wattage = (\d+)/);
       if (v) {
-        info.Watts = v[1];
+        info.Watts = v[index];
       }
 
       v = res.match(/Voltage = (\d+)/);
       if (v) {
-        info.Voltage = v[1];
+        info.Voltage = v[index];
       }
 
       v = res.match(/Current = (\d+)/);
       if (v) {
-        info.Current = v[1];
+        info.Current = v[index];
       }
-
-    }catch(e){
+    } catch (e) {
       app.dock.show();
-      dialog.showErrorBox("Error : " + app.name, e.toString());
+      dialog.showErrorBox(`Error : ${app.name}`, e.toString());
       app.quit();
     }
   }
@@ -167,16 +129,14 @@ const getChargerInfo = () => {
   return info;
 };
 
-const isCharging = () => {
-  return !!(chargerInfo.Watts && chargerInfo.Voltage && chargerInfo.Current);
-}
+const isCharging = () => !!(chargerInfo.Watts && chargerInfo.Voltage && chargerInfo.Current);
 
 
 const updateAppIcon = () => {
-  let charging_path = ICON_BLACK_PATH;
+  let chargingPath = ICON_BLACK_PATH;
 
   if (nativeTheme.shouldUseDarkColors) {
-    charging_path = ICON_WHITE_PATH;
+    chargingPath = ICON_WHITE_PATH;
   }
 
   appIcon.setPressedImage(ICON_WHITE_PATH);
@@ -186,7 +146,7 @@ const updateAppIcon = () => {
     return;
   }
 
-  appIcon.setImage(charging_path);
+  appIcon.setImage(chargingPath);
 };
 
 const updateAppIconTitle = () => {
@@ -230,7 +190,7 @@ const notify = () => {
 
   if (isCharging()) {
     params.title = '⚡Charging';
-    params.body = `Power: ${chargerInfo.Watts}W\nVoltage: ${chargerInfo.Voltage/1000}V / Current: ${chargerInfo.Current/1000}A`;
+    params.body = `Power: ${chargerInfo.Watts}W\nVoltage: ${chargerInfo.Voltage / 1000}V / Current: ${chargerInfo.Current / 1000}A`;
   }
 
   const notification = new Notification(params);
@@ -242,11 +202,11 @@ const update = (forceUpdate = false) => {
   chargerInfo = getChargerInfo();
 
   if (
-    !forceUpdate &&
-    oldChargerInfo
-    && oldChargerInfo.Watts == chargerInfo.Watts
-    && oldChargerInfo.Voltage == chargerInfo.Voltage
-    && oldChargerInfo.Current == chargerInfo.Current
+    !forceUpdate
+    && oldChargerInfo
+    && oldChargerInfo.Watts === chargerInfo.Watts
+    && oldChargerInfo.Voltage === chargerInfo.Voltage
+    && oldChargerInfo.Current === chargerInfo.Current
   ) {
     return;
   }
@@ -263,6 +223,46 @@ const update = (forceUpdate = false) => {
   notify();
 };
 
+
+const initMenu = () => {
+  appIcon = new Tray(ICON_BLACK_PATH);
+
+  menuStatus = new MenuItem({
+    enabled: false,
+  });
+  menuPower = new MenuItem({
+    enabled: false,
+  });
+  menuVoltage = new MenuItem({
+    enabled: false,
+  });
+  menuCurrent = new MenuItem({
+    enabled: false,
+  });
+  menuChangeNotification = new MenuItem({
+    label: 'Change Notification',
+    type: 'checkbox',
+    checked: store.get(MENU_NOTIFICATION_KEY),
+    click: () => {
+      store.set(MENU_NOTIFICATION_KEY, menuChangeNotification.checked);
+    },
+  });
+  menuShowPower = new MenuItem({
+    label: 'Show Power',
+    type: 'checkbox',
+    checked: store.get(MENU_SHOW_POWER_KEY),
+    click: () => {
+      update(true);
+      store.set(MENU_SHOW_POWER_KEY, menuShowPower.checked);
+    },
+  });
+  menuOpenGithub = new MenuItem({
+    label: 'Open GitHub',
+    click: () => {
+      shell.openExternal(GITHUB_URL);
+    },
+  });
+};
 
 app.on('ready', () => {
   app.dock.hide();
