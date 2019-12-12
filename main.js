@@ -66,7 +66,7 @@ const initMenu = () => {
     type: 'checkbox',
     checked: store.get(MENU_SHOW_POWER_KEY),
     click: () => {
-      update();
+      update(true);
       store.set(MENU_SHOW_POWER_KEY, menuShowPower.checked);
     },
   });
@@ -218,17 +218,8 @@ const updateMenuInfo = () => {
   menuCurrent.label = `\tCurrent: ${chargerInfo.Current / 1000}A`;
 };
 
-const notify = (oldChargerInfo) => {
+const notify = () => {
   if (!menuChangeNotification.checked) {
-    return;
-  }
-
-  if (
-    oldChargerInfo
-    && oldChargerInfo.Watts == chargerInfo.Watts
-    && oldChargerInfo.Voltage == chargerInfo.Voltage
-    && oldChargerInfo.Current == chargerInfo.Current
-  ) {
     return;
   }
 
@@ -246,14 +237,24 @@ const notify = (oldChargerInfo) => {
   notification.show();
 };
 
-const update = () => {
+const update = (forceUpdate = false) => {
   const oldChargerInfo = chargerInfo;
   chargerInfo = getChargerInfo();
+
+  if (
+    !forceUpdate &&
+    oldChargerInfo
+    && oldChargerInfo.Watts == chargerInfo.Watts
+    && oldChargerInfo.Voltage == chargerInfo.Voltage
+    && oldChargerInfo.Current == chargerInfo.Current
+  ) {
+    return;
+  }
 
   updateAppIcon();
   updateAppIconTitle();
   updateMenuInfo();
-  notify(oldChargerInfo);
+  notify();
 
   updateMenu();
 };
@@ -263,6 +264,6 @@ app.on('ready', () => {
   app.dock.hide();
   initMenu();
 
-  update();
+  update(true);
   setInterval(update, 5000);
 });
