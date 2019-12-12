@@ -105,3 +105,8 @@ dist
 
 # npm lock file
 package-lock.json
+
+# macosx generated file
+.DS_Store
+.AppleDouble
+.LSOverride
