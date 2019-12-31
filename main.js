@@ -4,15 +4,19 @@ const {
 const Store = require('electron-store');
 const { execSync } = require('child_process');
 const { version } = require('./package.json');
+const fs = require('fs');
 
 const GITHUB_URL = 'https://github.com/narikei/Charger-Information-for-Mac';
 
 const ICON_BLACK_PATH = `${__dirname}/images/icon_black.png`;
 const ICON_GRAY_PATH = `${__dirname}/images/icon_gray.png`;
 const ICON_WHITE_PATH = `${__dirname}/images/icon_white.png`;
+const STARTUP_LAUNCH_PLIST_SRC_PATH = `${__dirname}/startup/com.ozonicsky.charger-information-for-mac.plist`;
+const STARTUP_LAUNCH_PLIST_DST_PATH =  process.env["HOME"] + `/Library/LaunchAgents/com.ozonicsky.charger-information-for-mac.plist`;
 
 const MENU_NOTIFICATION_KEY = 'MENU_NOTIFICATION_KEY';
 const MENU_SHOW_POWER_KEY = 'MENU_SHOW_POWER_KEY';
+const MENU_SET_STARTUP_KEY = 'MENU_SET_STARTUP_KEY';
 
 const store = new Store({
   schema: {
@@ -23,6 +27,10 @@ const store = new Store({
     MENU_SHOW_POWER_KEY: {
       type: 'boolean',
       default: true,
+    },
+    MENU_SET_STARTUP_KEY: {
+      type: 'boolean',
+      default: false,
     },
   },
 });
@@ -36,6 +44,7 @@ let menuVoltage;
 let menuCurrent;
 let menuChangeNotification;
 let menuShowPower;
+let menuSetStartup;
 let menuOpenGithub;
 let chargerInfo;
 
@@ -50,6 +59,7 @@ const updateMenu = () => {
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuChangeNotification);
   menu.append(menuShowPower);
+  menu.append(menuSetStartup);
   menu.append(new MenuItem({ type: 'separator' }));
   menu.append(menuOpenGithub);
   menu.append(new MenuItem({ type: 'separator' }));
@@ -254,6 +264,27 @@ const initMenu = () => {
     click: () => {
       update(true);
       store.set(MENU_SHOW_POWER_KEY, menuShowPower.checked);
+    },
+  });
+  menuSetStartup = new MenuItem({
+    label: 'Set Startup',
+    type: 'checkbox',
+    checked: store.get(MENU_SET_STARTUP_KEY),
+    click: () => {
+      update(true);
+      try{
+        if(menuSetStartup.checked){
+          fs.copyFileSync(STARTUP_LAUNCH_PLIST_SRC_PATH, STARTUP_LAUNCH_PLIST_DST_PATH);
+        }else{
+          fs.unlinkSync(STARTUP_LAUNCH_PLIST_DST_PATH);
+        }
+      }catch(e){
+            app.dock.show();
+            dialog.showErrorBox(`Error : ${app.name}`, e.toString());
+            app.dock.hide();
+            return;
+      }
+      store.set(MENU_SET_STARTUP_KEY, menuSetStartup.checked);
     },
   });
   menuOpenGithub = new MenuItem({

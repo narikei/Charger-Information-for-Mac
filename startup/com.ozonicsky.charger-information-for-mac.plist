@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>KeepAlive</key>
+  <false/>
+  <key>Label</key>
+  <string>com.ozonicsky.charger-information-for-mac</string>
+  <key>Program</key>
+  <string>/Applications/Charger Information.app/Contents/MacOS/Charger Information</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+<string>/tmp/turtle.out</string>
+<key>StandardErrorPath</key>
+<string>/tmp/turtle.err</string>
+</dict>
+</plist>
