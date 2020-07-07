@@ -14,7 +14,7 @@
     "electron-store": "^5.1.0"
   },
   "devDependencies": {
-    "electron": "^7.1.2",
+    "electron": "^7.2.4",
     "electron-builder": "^21.2.0",
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
